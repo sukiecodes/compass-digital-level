@@ -21,9 +21,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.cs501compassdigitallevel.ui.theme.CS501CompassDigitalLevelTheme
+import kotlin.math.atan2
 
 class MainActivity : ComponentActivity(), SensorEventListener {
 
@@ -128,6 +132,10 @@ fun CompassScreen(x: Float, y: Float, z: Float, a: Float, b: Float, c: Float, r:
     val magnetometerValues: FloatArray = floatArrayOf(a, b, c)
     var rotationInDegrees = 0.0
 
+    // pitch and roll values using gyroscope sensor
+    val pitch = atan2(t, -s) * 180 / Math.PI
+    val roll = atan2(r, -s) * 180 / Math.PI
+
     val success = SensorManager.getRotationMatrix(rotationMatrix, identityMatrix, accelerometerValues, magnetometerValues)
 
     if (success) {
@@ -145,11 +153,14 @@ fun CompassScreen(x: Float, y: Float, z: Float, a: Float, b: Float, c: Float, r:
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = rotationInDegrees.toString())
-        Text(text = "gyroscope values") // need to use these for the rotation matrix
-        Text(text = r.toString())
-        Text(text = s.toString())
-        Text(text = t.toString())
+        Text(
+            text = rotationInDegrees.toString(),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+        )
+        SensorValue(label = "Roll value", value = roll)
+        SensorValue(label = "Pitch value", value = pitch)
 
         // representing the compass using an arrow (arrow head will be considered north)
         Image(
@@ -161,9 +172,19 @@ fun CompassScreen(x: Float, y: Float, z: Float, a: Float, b: Float, c: Float, r:
     }
 }
 
+@Composable
+fun SensorValue(label: String, value: Double) {
+    Text(
+        text = "$label: ${"%.2f".format(value)}",
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Medium,
+        color = Color.DarkGray
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun CompassScreenPreview() {
     CS501CompassDigitalLevelTheme {
         CompassScreen(x = 0f, y = 0f, z = 0f, a = 0f, b = 0f, c = 0f, r = 0f, s = 0f, t = 0f)
     }
